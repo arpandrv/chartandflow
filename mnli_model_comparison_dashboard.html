@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNLI Model Performance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .accuracy-high { background: #48bb78; color: white; }
+        .accuracy-medium { background: #ed8936; color: white; }
+        .accuracy-low { background: #f56565; color: white; }
+        .accuracy-zero { background: #a0aec0; color: white; }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 400px;
+        }
+
+        .performance-table {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f7fafc;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-excellent { background: #48bb78; color: white; }
+        .status-good { background: #38b2ac; color: white; }
+        .status-poor { background: #ed8936; color: white; }
+        .status-failed { background: #f56565; color: white; }
+
+        .insights {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .insights h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+
+        .insight-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #4299e1;
+        }
+
+        .insight-item h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .insight-item p {
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MNLI Model Performance Dashboard</h1>
+            <p>Comprehensive Analysis of Zero-Shot Intent Classification Models</p>
+            <p><strong>Test Dataset:</strong> 492 samples • <strong>Languages:</strong> General English & Aboriginal English • <strong>Intent Classes:</strong> 12</p>
+        </div>
+
+        <div class="summary-cards">
+            <div class="card">
+                <h3>🏆 Best Overall Model</h3>
+                <div class="metric">
+                    <span class="metric-label">roberta-large-mnli</span>
+                    <span class="metric-value accuracy-high">79.5%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Model Size</span>
+                    <span class="metric-value">350 MB</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Inference Time</span>
+                    <span class="metric-value">1.6s</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚡ Fastest Model</h3>
+                <div class="metric">
+                    <span class="metric-label">bart-large-mnli</span>
+                    <span class="metric-value accuracy-low">23.4%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Inference Time</span>
+                    <span class="metric-value">470ms</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Trade-off</span>
+                    <span class="metric-value">Speed vs Accuracy<br>(Unusable)</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 Dialect Performance Gap</h3>
+                <div class="metric">
+                    <span class="metric-label">General English</span>
+                    <span class="metric-value accuracy-high">87.1%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Aboriginal English</span>
+                    <span class="metric-value accuracy-medium">72.2%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Performance Gap</span>
+                    <span class="metric-value accuracy-low">14.9%</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>❌ Failed Model</h3>
+                <div class="metric">
+                    <span class="metric-label">bert-base-uncased-mnli</span>
+                    <span class="metric-value accuracy-zero">0%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Issue</span>
+                    <span class="metric-value">Pipeline Error</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Status</span>
+                    <span class="metric-value">Non-functional</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Overall Accuracy Comparison</div>
+                <div class="chart-canvas">
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Performance vs Model Size</div>
+                <div class="chart-canvas">
+                    <canvas id="performanceSizeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Dialect Performance Comparison</div>
+                <div class="chart-canvas">
+                    <canvas id="dialectChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Inference Time(CPU) Analysis</div>
+                <div class="chart-canvas">
+                    <canvas id="inferenceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">Intent Classification Performance (RoBERTa vs DistilBART)</div>
+            <div class="chart-canvas">
+                <canvas id="intentChart"></canvas>
+            </div>
+        </div>
+
+        <div class="performance-table">
+            <h2 style="margin-bottom: 20px; color: #2d3748;">Detailed Model Comparison</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Accuracy</th>
+                        <th>Size</th>
+                        <th>Inference Time(CPU)</th>
+                        <th>General English</th>
+                        <th>Aboriginal English</th>
+                        <th>Status</th>
+                        <th>Best Intent</th>
+                        <th>Worst Intent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>roberta-large-mnli (ONNX INT8)</strong></td>
+                        <td>79.5%</td>
+                        <td>350 MB</td>
+                        <td>1.6s</td>
+                        <td>87.1%</td>
+                        <td>72.2%</td>
+                        <td><span class="status-badge status-excellent">Excellent</span></td>
+                        <td>Goals (97.6%)</td>
+                        <td>Greeting (51.2%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>distilbart-mnli-12-1</strong></td>
+                        <td>77.2%</td>
+                        <td>1.2 GB</td>
+                        <td>1.1s</td>
+                        <td>84.2%</td>
+                        <td>70.6%</td>
+                        <td><span class="status-badge status-good">Good</span></td>
+                        <td>No Worries (90.2%)</td>
+                        <td>Greeting (26.8%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>bart-large-mnli (ONNX INT8)</strong></td>
+                        <td>23.4%</td>
+                        <td>420 MB</td>
+                        <td>470ms</td>
+                        <td>27.9%</td>
+                        <td>19.0%</td>
+                        <td><span class="status-badge status-poor">Poor</span></td>
+                        <td>Worries (53.7%)</td>
+                        <td>Greeting (0%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>bert-base-uncased-mnli</strong></td>
+                        <td>0%</td>
+                        <td>420 MB</td>
+                        <td>1.6s</td>
+                        <td>0%</td>
+                        <td>0%</td>
+                        <td><span class="status-badge status-failed">Failed</span></td>
+                        <td>None</td>
+                        <td>All (0%)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="insights">
+            <h2>🔍 Key Insights & Recommendations</h2>
+            
+            <div class="insight-item">
+                <h4>🎯 Production Recommendation</h4>
+                <p><strong>roberta-large-mnli (ONNX INT8)</strong> offers the best balance of accuracy (79.5%), reasonable model size (350MB), and acceptable inference time (1.6s). It demonstrates strong performance across most intent classes and provides the most reliable classification results.</p>
+            </div>
+
+            <div class="insight-item">
+                <h4>🏃‍♂️ Speed vs Accuracy Trade-off</h4>
+                <p><strong>distilbart-mnli-12-1</strong> provides faster inference (1.1s) with only slightly lower accuracy (77.2%) but requires 3.4x more storage space. Consider this for real-time applications where storage isn't constrained.</p>
+            </div>
+
+            <div class="insight-item">
+                <h4>🌏 Cultural Adaptation Challenge</h4>
+                <p>All functional models show significant performance degradation on <strong>Aboriginal English</strong> (13.6-14.9% accuracy drop). This indicates a critical need for fine-tuning or domain adaptation to improve cultural inclusivity for the AIMhi-Y chatbot.</p>
+            </div>
+
+            <div class="insight-item">
+                <h4>👋 Greeting Detection Problem</h4>
+                <p><strong>Greeting intent is consistently problematic</strong> across all models, with accuracy ranging from 0% to 51.2%. This suggests that greeting patterns in both dialects may not be well-represented in the original MNLI training data.</p>
+            </div>
+
+            <div class="insight-item">
+                <h4>⚙️ Implementation Issues</h4>
+                <p><strong>bert-base-uncased-mnli completely failed</strong> due to pipeline parsing errors, highlighting the importance of robust error handling and thorough testing in production NLP systems.</p>
+            </div>
+
+            <div class="insight-item">
+                <h4>📈 Intent-Specific Performance</h4>
+                <p><strong>Goal-related and Question intents</strong> perform consistently well across models, while <strong>Affirmation/Negation and Greeting intents</strong> show the most variability, suggesting these may require specialized handling or additional training data.</p>
+            </div>
+        </div>
+
+        <div class="insights">
+            <h2>📚 Model Resources</h2>
+            <div class="insight-item">
+                <h4>🔗 Hugging Face Model Links</h4>
+                <p>Access the original models used in this evaluation:</p>
+                <ul style="list-style: none; padding: 0; margin-top: 10px;">
+                    <li style="margin-bottom: 8px;">• <strong>bert-base-uncased-mnli:</strong> <a href="https://huggingface.co/ishan/bert-base-uncased-mnli" target="_blank" style="color: #4299e1;">https://huggingface.co/ishan/bert-base-uncased-mnli</a></li>
+                    <li style="margin-bottom: 8px;">• <strong>bart-large-mnli (ONNX):</strong> <a href="https://huggingface.co/onnx-community/bart-large-mnli-ONNX" target="_blank" style="color: #4299e1;">https://huggingface.co/onnx-community/bart-large-mnli-ONNX</a></li>
+                    <li style="margin-bottom: 8px;">• <strong>roberta-large-mnli (ONNX):</strong> <a href="https://huggingface.co/Xenova/roberta-large-mnli/tree/main/onnx" target="_blank" style="color: #4299e1;">https://huggingface.co/Xenova/roberta-large-mnli/tree/main/onnx</a></li>
+                    <li style="margin-bottom: 8px;">• <strong>distilbart-mnli-12-1:</strong> <a href="https://huggingface.co/valhalla/distilbart-mnli-12-1" target="_blank" style="color: #4299e1;">https://huggingface.co/valhalla/distilbart-mnli-12-1</a></li>
+                    </ul>
+                </div>
+                
+                <div class="insight-item">
+                    <h4>📥 Download Test Data</h4>
+                    <p>Access the test dataset used in this evaluation:</p>
+                    <div style="margin-top: 10px;">
+                        <a href="https://drive.google.com/uc?id=10UAdwJsn262scIm-EbQcM_aiyPGHV411" 
+                           target="_blank" 
+                           style="display: inline-block; padding: 10px 20px; background: #4299e1; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background 0.3s ease;"
+                           onmouseover="this.style.background='#3182ce'"
+                           onmouseout="this.style.background='#4299e1'">
+                            📥 Download Test Data (Google Drive)
+                        </a>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #718096;">
+                        The dataset contains 492 samples across 12 intent classes in both General English and Aboriginal English dialects.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js configuration
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.color = '#4a5568';
+
+        // Overall Accuracy Chart
+        const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
+        new Chart(accuracyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['roberta-large-mnli', 'distilbart-mnli-12-1', 'bart-large-mnli', 'bert-base-uncased-mnli'],
+                datasets: [{
+                    label: 'Accuracy (%)',
+                    data: [79.5, 77.2, 23.4, 0],
+                    backgroundColor: [
+                        '#48bb78',
+                        '#38b2ac',
+                        '#ed8936',
+                        '#a0aec0'
+                    ],
+                    borderColor: [
+                        '#38a169',
+                        '#319795',
+                        '#dd6b20',
+                        '#718096'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Accuracy: ' + context.parsed.y + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Performance vs Size Bubble Chart
+        const performanceSizeCtx = document.getElementById('performanceSizeChart').getContext('2d');
+        new Chart(performanceSizeCtx, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'Model Performance vs Size',
+                    data: [
+                        {x: 350, y: 79.5, r: 15, model: 'roberta-large-mnli'},
+                        {x: 1200, y: 77.2, r: 20, model: 'distilbart-mnli-12-1'},
+                        {x: 420, y: 23.4, r: 12, model: 'bart-large-mnli'},
+                        {x: 420, y: 0, r: 10, model: 'bert-base-uncased-mnli'}
+                    ],
+                    backgroundColor: [
+                        'rgba(72, 187, 120, 0.6)',
+                        'rgba(56, 178, 172, 0.6)',
+                        'rgba(237, 137, 54, 0.6)',
+                        'rgba(160, 174, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        '#48bb78',
+                        '#38b2ac',
+                        '#ed8936',
+                        '#a0aec0'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Model Size (MB)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Accuracy (%)'
+                        },
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const point = context.raw;
+                                return [
+                                    `Model: ${point.model}`,
+                                    `Size: ${point.x} MB`,
+                                    `Accuracy: ${point.y}%`
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Dialect Performance Chart
+        const dialectCtx = document.getElementById('dialectChart').getContext('2d');
+        new Chart(dialectCtx, {
+            type: 'bar',
+            data: {
+                labels: ['roberta-large-mnli', 'distilbart-mnli-12-1', 'bart-large-mnli'],
+                datasets: [{
+                    label: 'General English',
+                    data: [87.1, 84.2, 27.9],
+                    backgroundColor: '#4299e1',
+                    borderRadius: 6
+                }, {
+                    label: 'Aboriginal English',
+                    data: [72.2, 70.6, 19.0],
+                    backgroundColor: '#ed8936',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inference Time Chart
+        const inferenceCtx = document.getElementById('inferenceChart').getContext('2d');
+        new Chart(inferenceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['roberta-large-mnli (1.6s)', 'distilbart-mnli-12-1 (1.1s)', 'bart-large-mnli (0.47s)', 'bert-base-uncased-mnli (1.6s)'],
+                datasets: [{
+                    data: [1600, 1100, 470, 1600],
+                    backgroundColor: [
+                        '#48bb78',
+                        '#38b2ac',
+                        '#ed8936',
+                        '#a0aec0'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + (context.parsed / 1000).toFixed(2) + 's';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Intent Performance Radar Chart
+        const intentCtx = document.getElementById('intentChart').getContext('2d');
+        new Chart(intentCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Goals', 'Negation', 'Question', 'Support People', 'Worries', 'Affirmation', 'No Worries', 'Strengths', 'No Support', 'No Goals', 'No Strengths', 'Greeting'],
+                datasets: [{
+                    label: 'roberta-large-mnli',
+                    data: [97.6, 92.7, 90.2, 90.2, 87.8, 82.9, 80.5, 78.0, 73.2, 70.7, 58.5, 51.2],
+                    backgroundColor: 'rgba(72, 187, 120, 0.2)',
+                    borderColor: '#48bb78',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#48bb78'
+                }, {
+                    label: 'distilbart-mnli-12-1',
+                    data: [80.5, 68.3, 90.2, 80.5, 85.4, 65.9, 90.2, 73.2, 87.8, 87.8, 90.2, 26.8],
+                    backgroundColor: 'rgba(56, 178, 172, 0.2)',
+                    borderColor: '#38b2ac',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#38b2ac'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.r + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
