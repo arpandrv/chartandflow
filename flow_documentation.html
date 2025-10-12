@@ -3,174 +3,697 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>AIMhi-Y Yarn Chatbot - Interactive Flow Documentation</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#ec4899',
+                        dark: '#1e293b',
+                        light: '#f1f5f9'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            position: relative;
-            overflow: hidden;
         }
 
-        body::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: drift 20s infinite linear;
+        .glass-effect {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        @keyframes drift {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        .container {
-            text-align: center;
-            z-index: 1;
-            padding: 2rem;
-        }
-
-        h1 {
-            color: white;
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 3rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        .button-group {
+        .mermaid {
             display: flex;
-            gap: 2rem;
             justify-content: center;
-            flex-wrap: wrap;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .btn {
-            display: inline-block;
-            padding: 1.2rem 3rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-decoration: none;
-            border-radius: 50px;
+        .section-card {
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: fadeInUp 0.8s ease-out;
-            animation-fill-mode: backwards;
         }
 
-        .btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
+        .section-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        .btn:hover:before {
-            left: 100%;
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%);
-            color: white;
-            animation-delay: 0.2s;
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(66, 230, 149, 0.4);
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
         }
 
-        .btn-secondary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            animation-delay: 0.4s;
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.4);
-        }
-
-        .btn-tertiary {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            animation-delay: 0.6s;
-        }
-
-        .btn-tertiary:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(86, 171, 47, 0.4);
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2rem;
-                margin-bottom: 2rem;
-            }
-
-            .button-group {
-                flex-direction: column;
-                align-items: center;
-                gap: 1.5rem;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 250px;
-            }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Welcome to Our Site</h1>
-        <div class="button-group">
-            <a href="flow_documentation.html" class="btn btn-primary">Flow Documentation</a>
-            <a href="https://chatbot-qfe1.onrender.com" class="btn btn-secondary">Use App</a>
-            <a href="https://github.com/arpandrv/chatbot" class="btn btn-tertiary">View Repo</a>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-effect text-white gradient-bg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-robot text-2xl"></i>
+                    <h1 class="text-xl font-bold">AIMhi-Y Yarn Chatbot</h1>
+                </div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#overview" class="hover:text-gray-200 transition">Overview</a>
+                    <a href="#architecture" class="hover:text-gray-200 transition">Architecture</a>
+                    <a href="#flow" class="hover:text-gray-200 transition">Conversation Flow</a>
+                    <a href="#request-flow" class="hover:text-gray-200 transition">Request Processing</a>
+                    <a href="#tech-stack" class="hover:text-gray-200 transition">Tech Stack</a>
+                </div>
+            </div>
         </div>
-    </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white pt-24 pb-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center animate-fade-in">
+                <h1 class="text-5xl font-bold mb-6">AIMhi-Y "Yarn" Chatbot</h1>
+                <p class="text-xl mb-8 max-w-3xl mx-auto">
+                    A safety-aware mental health support chatbot implementing the AIMhi Stay Strong 4-step model
+                    with advanced NLP capabilities and risk detection
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="scrollToSection('overview')" class="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                        <i class="fas fa-play mr-2"></i>Get Started
+                    </button>
+                    <button onclick="scrollToSection('request-flow')" class="border-2 border-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition">
+                        <i class="fas fa-diagram-project mr-2"></i>View Detailed Flow
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="py-16">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">System Overview</h2>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Core Features Card -->
+                <div class="section-card bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-lg">
+                            <i class="fas fa-brain text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold ml-4">Intelligent NLP</h3>
+                    </div>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Intent Classification</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Sentiment Analysis</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Risk Detection</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>LLM Fallback</li>
+                    </ul>
+                </div>
+
+                <!-- Safety Features Card -->
+                <div class="section-card bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-accent bg-opacity-10 p-3 rounded-lg">
+                            <i class="fas fa-shield-alt text-2xl text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold ml-4">Safety First</h3>
+                    </div>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Crisis Detection</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Resource Surfacing</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>JWT Authentication</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Rate Limiting</li>
+                    </ul>
+                </div>
+
+                <!-- Architecture Card -->
+                <div class="section-card bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-secondary bg-opacity-10 p-3 rounded-lg">
+                            <i class="fas fa-network-wired text-2xl text-secondary"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold ml-4">Robust Architecture</h3>
+                    </div>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>FSM-driven Flow</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Supabase Backend</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Flask REST API</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Docker Ready</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">System Architecture</h2>
+
+            <div class="bg-white rounded-xl p-8 shadow-lg">
+                <div class="mermaid">
+                    graph TB
+                        subgraph "Client Layer"
+                            U[User] -->|HTTPS| UI[Web Interface]
+                            UI -->|JWT Auth| API
+                        end
+
+                        subgraph "API Layer"
+                            API[Flask API] -->|Middleware| AUTH[Auth Middleware]
+                            API --> CORS[CORS Handler]
+                            API --> RL[Rate Limiter]
+                        end
+
+                        subgraph "Business Logic"
+                            API --> ROUTER[FSM Router]
+                            ROUTER --> FSM[State Machine]
+                            FSM --> RESP[Response Selector]
+                        end
+
+                        subgraph "NLP Pipeline"
+                            ROUTER --> NLP[NLP Engine]
+                            NLP --> INTENT[Intent Classifier]
+                            NLP --> SENT[Sentiment Analyzer]
+                            NLP --> RISK[Risk Detector]
+                        end
+
+                        subgraph "External Services"
+                            INTENT --> HF1[HuggingFace BART]
+                            HF1 -->|Fallback| LLM1[LLM Provider]
+
+                            SENT --> HF2[Twitter-RoBERTa]
+                            HF2 -->|Fallback| LLM2[LLM Provider]
+
+                            RISK --> LLM3[LLM Provider]
+                            LLM3 -->|Fallback| HF3[HF Suicidality Model]
+                        end
+
+                        subgraph "Data Layer"
+                            API --> DB[(Supabase)]
+                            DB --> SESS[Sessions]
+                            DB --> MSG[Messages]
+                            DB --> USR[Users]
+                        end
+
+                        style U fill:#e0f2fe
+                        style API fill:#ddd6fe
+                        style NLP fill:#fce7f3
+                        style DB fill:#dcfce7
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conversation Flow Section -->
+    <section id="flow" class="py-16">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Conversation Flow</h2>
+
+            <div class="bg-white rounded-xl p-8 shadow-lg mb-8">
+                <h3 class="text-xl font-semibold mb-4 text-gray-700">FSM State Transitions</h3>
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                    <p class="text-sm text-blue-700">
+                        <strong>Note:</strong> "2nd Attempt" happens when the user response is unclear or is against the current FSM state. The system will try once more to get a relevant response before gracefully moving forward.
+                    </p>
+                </div>
+                <div class="mermaid">
+                    stateDiagram-v2
+                        [*] --> Welcome: User Starts
+                        Welcome --> SupportPeople: Ready/Continue
+                        Welcome --> Welcome: 2nd Attempt
+
+                        SupportPeople --> Strengths: Has Support
+                        SupportPeople --> SupportPeople: 2nd Attempt
+
+                        Strengths --> Worries: Shares Strengths
+                        Strengths --> Strengths: 2nd Attempt
+
+                        Worries --> Goals: Continue Discussion
+                        Worries --> Worries: 2nd Attempt
+
+                        Goals --> LLMConversation: Sets Goals
+                        Goals --> Goals: 2nd Attempt
+
+                        LLMConversation --> LLMConversation: Free Chat
+                        LLMConversation --> [*]: End Session
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-700">
+                        <i class="fas fa-comments text-primary mr-2"></i>4-Step Model
+                    </h3>
+                    <ol class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">1</span>
+                            <div>
+                                <strong>Support People:</strong> Identify personal support network
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">2</span>
+                            <div>
+                                <strong>Strengths:</strong> Recognize personal strengths and capabilities
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">3</span>
+                            <div>
+                                <strong>Worries:</strong> Discuss concerns with risk monitoring
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">4</span>
+                            <div>
+                                <strong>Goals:</strong> Set achievable future objectives
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-700">
+                        <i class="fas fa-brain text-secondary mr-2"></i>NLP Processing
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <strong>Intent Classification:</strong>
+                            <p class="text-sm text-gray-600">Zero-shot BART → LLM fallback</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <strong>Sentiment Analysis:</strong>
+                            <p class="text-sm text-gray-600">Twitter-RoBERTa → LLM fallback</p>
+                        </div>
+                        <div class="border-l-4 border-red-500 pl-4">
+                            <strong>Risk Detection:</strong>
+                            <p class="text-sm text-gray-600">LLM classifier → HF suicidality model</p>
+                        </div>
+                        <div class="border-l-4 border-purple-500 pl-4">
+                            <strong>Response Selection:</strong>
+                            <p class="text-sm text-gray-600">Sentiment-aware, culturally appropriate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Request Processing Flow Section -->
+    <section id="request-flow" class="py-16 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Complete Request Processing Flow</h2>
+
+            <!-- Main Processing Flow -->
+            <div class="bg-white rounded-xl p-8 shadow-lg mb-12">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-700 text-center">
+                    <i class="fas fa-route text-primary mr-2"></i>End-to-End Request Processing
+                </h3>
+                <div class="mermaid">
+                    flowchart TD
+                        A[👤 User Input] --> B[🌐 Frontend]
+                        B -->|HTTP Request| C[🚀 Flask app.py]
+                        C -->|Route to| D[🔀 Router]
+                        D --> E[🔧 Initialize FSM]
+                        E --> F[🧠 NLP Pipeline]
+
+                        F --> G[📝 Text Preprocessing]
+                        G --> H[🚨 Risk Detection]
+
+                        H --> I{Risk Detected?}
+                        I -->|Yes| J[⚠️ Crisis Popup + Resources<br/>+ Continue Option]
+                        I -->|No| K[🎯 Intent Classification]
+                        J --> K
+
+                        K --> L[😊 Sentiment Analysis]
+                        L --> M{Intent matches<br/>FSM State?}
+
+                        M -->|Yes| N[📋 Response Selector]
+                        M -->|No/Unclear| O[❓ Clarifying Message]
+
+                        N --> P[🎭 Select from Response Pool<br/>Based on: Intent + Sentiment + FSM State]
+                        O --> Q[📥 Wait for User Response]
+                        Q --> R{Second Response<br/>matches FSM?}
+                        R -->|Yes| N
+                        R -->|No| S["✅ Acknowledge + Move Forward<br/>(Also selected from Response Pool)"]
+
+
+                        P --> T[📨 Send Response]
+                        S --> T
+                        T --> U{All FSM States<br/>Completed?}
+
+                        U -->|No| V[⏭️ FSM State Transition]
+                        V --> W[📥 Wait for Next User Input]
+                        W --> F
+
+                        U -->|Yes| X[🔄 Handoff to LLM Mode]
+                        X --> Y[🤖 LLM Processing]
+                        Y --> Z[💬 Generate LLM Response<br/>No Response Pool]
+                        Z --> AA[📨 Send LLM Response]
+                        AA --> BB[📥 Wait for User Input]
+                        BB --> Y
+
+                        style A fill:#e0f2fe
+                        style H fill:#fee2e2
+                        style I fill:#fef3c7
+                        style J fill:#fecaca
+                        style X fill:#ddd6fe
+                        style Y fill:#c7d2fe
+                        style Z fill:#a7f3d0
+                </div>
+            </div>
+
+            <!-- NLP Pipeline Details -->
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-700">
+                        <i class="fas fa-brain text-red-500 mr-2"></i>Risk Detection Pipeline
+                    </h3>
+                    <div class="mermaid">
+                        flowchart TD
+                            A[User Message] --> B[LLM Risk Classifier]
+                            B --> C{LLM API Response?}
+                            C -->|Success| D{LLM Returns Risk/No Risk?}
+                            C -->|API Failure| E[HF Suicidality Model Fallback]
+
+                            D -->|Risk| F[Risk Detected]
+                            D -->|No Risk| G[No Risk Detected]
+
+                            E --> H{Suicidality Score > Threshold?}
+                            H -->|Yes| F
+                            H -->|No| G
+
+                            F --> I[🚨 Crisis Popup<br/>13YARN + Lifeline<br/>+ Continue Chat Option]
+                            G --> J[Continue Normal Flow]
+                            I --> K[Log Risk Event]
+                            K --> L{User Chooses Continue?}
+                            L -->|Yes| J
+                            L -->|No| M[End Conversation]
+
+                            style F fill:#fecaca
+                            style I fill:#fee2e2
+                            style J fill:#dcfce7
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-700">
+                        <i class="fas fa-bullseye text-blue-500 mr-2"></i>Intent Classification Pipeline
+                    </h3>
+                    <div class="mermaid">
+                        flowchart TD
+                            A[Preprocessed Text] --> B[HF Zero-Shot BART]
+                            B --> C{Confidence > Threshold?}
+                            C -->|Yes| D[Intent Classified]
+                            C -->|No| E[LLM Fallback Classifier]
+                            E --> F[Intent from LLM JSON]
+                            F --> D
+
+                            D --> G[🎭 Sentiment Analysis]
+                            G --> H[HF Twitter-RoBERTa]
+                            H --> I{Sentiment Confidence <br> > Threshold?}
+                            I -->|Yes| J[Sentiment Result]
+                            I -->|No| K[LLM Sentiment Fallback]
+                            K --> J
+
+                            J --> L[Intent + Sentiment Ready]
+
+                            style D fill:#dbeafe
+                            style J fill:#dcfce7
+                            style L fill:#f0f9ff
+                    </div>
+                </div>
+            </div>
+
+            <!-- FSM Decision Logic -->
+            <div class="bg-white rounded-xl p-8 shadow-lg mb-8">
+                <h3 class="text-xl font-semibold mb-6 text-gray-700 text-center">
+                    <i class="fas fa-decision text-purple-500 mr-2"></i>FSM State Matching & Response Logic
+                </h3>
+                <div class="mermaid">
+                    flowchart TD
+                        A[Intent + Sentiment Results] --> B{Intent matches<br/>Current FSM State?}
+
+                        B -->|✅ Match| C[Response Selector]
+                        B -->|❌ No Match/Unclear| D[Send Clarifying Question]
+
+                        C --> E[Select Response from Pool<br/>Based on: State + Sentiment + Intent]
+                        E --> F[Send Transitioning Response]
+                        F --> G[Move to Next FSM State]
+
+                        D --> H[Wait for User Response]
+                        H --> I[Reprocess Response]
+                        I --> J{Second Attempt<br/>Matches State?}
+
+                        J -->|✅ Yes| C
+                        J -->|❌ Still No| K[Response Selector]
+
+                        K --> L[Select Acknowledgment Response<br/>from Response Pool]
+                        L --> M[Send Acknowledgment Response]
+                        M --> N[Move FSM Forward Anyway]
+
+                        G --> O{All 4 Steps<br/>Completed?}
+                        N --> O
+
+                        O -->|No| P[Continue FSM Flow]
+                        O -->|Yes| Q[🔄 Transition to LLM Mode]
+
+                        Q --> R[Free-form LLM Conversation]
+                        R --> S[Generate Contextual Response]
+                        S --> T[No Response Pool<br/>Pure LLM Output]
+
+                        style C fill:#ddd6fe
+                        style E fill:#fef3c7
+                        style K fill:#ddd6fe
+                        style L fill:#fef3c7
+                        style Q fill:#c084fc
+                        style R fill:#a78bfa
+                </div>
+            </div>
+
+            <!-- Response Selection Detail -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <h4 class="font-semibold mb-3 text-gray-700">
+                        <i class="fas fa-list text-blue-500 mr-2"></i>Response Pool Selection
+                    </h4>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li>📂 responses.json categories</li>
+                        <li>🎯 Current FSM state filter</li>
+                        <li>😊 Sentiment-aware variation</li>
+                        <li>🎪 Intent-specific responses</li>
+                        <li>🔄 Transition prompts</li>
+                        <li>🌏 Culturally appropriate language</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <h4 class="font-semibold mb-3 text-gray-700">
+                        <i class="fas fa-question-circle text-orange-500 mr-2"></i>Clarification Strategy
+                    </h4>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li>❓ State-specific clarifying questions</li>
+                        <li>🎯 Guide user toward expected response</li>
+                        <li>🔄 Maximum 1 retry attempt</li>
+                        <li>✅ Graceful acknowledgment on failure</li>
+                        <li>⏭️ Continue conversation flow</li>
+                        <li>🔒 Preserve UX fluidity</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <h4 class="font-semibold mb-3 text-gray-700">
+                        <i class="fas fa-robot text-purple-500 mr-2"></i>LLM Handoff Mode
+                    </h4>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li>🔄 After 4 FSM steps complete</li>
+                        <li>💬 Full conversation context</li>
+                        <li>🎭 Personality consistency</li>
+                        <li>🚨 Continued risk monitoring</li>
+                        <li>📝 Session persistence</li>
+                        <li>∞ Open-ended conversation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech-stack" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Technology Stack</h2>
+
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Backend -->
+                <div class="bg-white rounded-lg p-6 text-center">
+                    <i class="fas fa-server text-4xl text-primary mb-3"></i>
+                    <h4 class="font-semibold mb-2">Backend</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>Flask 2.3</li>
+                        <li>Python 3.11</li>
+                        <li>Gunicorn</li>
+                        <li>Docker</li>
+                    </ul>
+                </div>
+
+                <!-- Database -->
+                <div class="bg-white rounded-lg p-6 text-center">
+                    <i class="fas fa-database text-4xl text-secondary mb-3"></i>
+                    <h4 class="font-semibold mb-2">Database</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>Supabase</li>
+                        <li>PostgreSQL</li>
+                        <li>JWT Auth</li>
+                        <li>Realtime</li>
+                    </ul>
+                </div>
+
+                <!-- AI/ML -->
+                <div class="bg-white rounded-lg p-6 text-center">
+                    <i class="fas fa-robot text-4xl text-accent mb-3"></i>
+                    <h4 class="font-semibold mb-2">AI/ML</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>HuggingFace</li>
+                        <li>OpenAI API</li>
+                        <li>Ollama</li>
+                        <li>Transformers</li>
+                    </ul>
+                </div>
+
+                <!-- Security -->
+                <div class="bg-white rounded-lg p-6 text-center">
+                    <i class="fas fa-shield-alt text-4xl text-green-500 mb-3"></i>
+                    <h4 class="font-semibold mb-2">Security</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>JWT Tokens</li>
+                        <li>CORS</li>
+                        <li>Rate Limiting</li>
+                        <li>CSP Headers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Try Live App -->
+    <section id="demo" class="py-16 bg-gradient-to-br from-purple-50 to-pink-50">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">Experience the Live Chatbot</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Ready to see the AIMhi-Y Yarn Chatbot in action? Click below to interact with the live application and experience the complete conversation flow.
+            </p>
+            <button onclick="window.open('https://chatbot-qfe1.onrender.com', '_blank')" class="bg-accent text-white px-12 py-4 rounded-lg hover:bg-opacity-90 transition text-lg font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105">
+                <i class="fas fa-external-link-alt mr-3"></i>Try Live Chatbot
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p class="mb-2">AIMhi-Y Yarn Chatbot - Mental Health Support System</p>
+            <p class="text-sm opacity-75">Built with Flask, Supabase, and AI/ML Technologies</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#6366f1',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#4f46e5',
+                lineColor: '#94a3b8',
+                secondaryColor: '#8b5cf6',
+                tertiaryColor: '#ec4899',
+                background: '#ffffff',
+                mainBkg: '#f8fafc',
+                secondBkg: '#e2e8f0'
+            }
+        });
+
+        // Smooth scroll function
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-slide-up');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all section cards
+        document.querySelectorAll('.section-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
 </body>
 </html>
